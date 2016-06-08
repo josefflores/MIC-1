@@ -57,7 +57,43 @@ int main(int argc, char *argv[]) {
   unlink("/tmp/passone");
   while( (tok=yylex()) ){
     switch(tok){
-    case LODD:
+    //  ADDED MULT
+    case MULT:
+      switch(tok=yylex()){
+      case INTEG:
+        str_6(yytext);
+        fprintf(p1,"%d  1111111100%s\n", pc, cstr_6);
+        break;
+      case LABEL:
+        fprintf(p1,"%d  U1111111100000000    %s\n", pc, yytext);
+        break;
+      default:
+        fprintf(stderr,"Bad operand after MULT is %s on line %d\n", yytext, pc);
+        exit(1);
+      }
+      break;
+
+    //  ADDED RSHIFT
+    case RSHIFT:
+      switch(tok=yylex()){
+      case INTEG:
+        str_6(yytext);
+        fprintf(p1,"%d  1111111101%s\n", pc, cstr_6);
+        break;
+      case LABEL:
+        fprintf(p1,"%d  U1111111101000000    %s\n", pc, yytext);
+        break;
+      default:
+        fprintf(stderr,"Bad operand after RSHIFT is %s on line %d\n", yytext, pc);
+        exit(1);
+      }
+      break;
+
+    //  ADDED DIV
+    case DIV: fprintf(p1,"%d 1111111110000000\n",pc);
+      break;
+
+      case LODD:
       switch(tok=yylex()){
       case INTEG:
         str_12(yytext);
@@ -304,6 +340,7 @@ int main(int argc, char *argv[]) {
       fprintf(p1,"%d  11111110%s\n",  pc, cstr_8);
       break;
 
+    //  Modified
     case HALT:
       fprintf(p1,"%d  1111111111000000\n",pc);
       break;
@@ -363,23 +400,23 @@ int main(int argc, char *argv[]) {
     }
     pc++;
   }
-  
+
   if (object_file) {
     print_first_pass(NO_HEADERS);
     append_table();
     return 0;
   }
-  
+
   if(linum){
     print_first_pass(HEADERS);
   }
-  
+
   generate_code(linum);
-  
+
   if (dump_tab) {
     dump_table();
   }
- 
+
   return 0;
 }
 
@@ -494,7 +531,7 @@ void update_sym_table(char *symbol) {
 
 void search_sym_table(char *symbol) {
   for (struct nament *list = symtab; list; list = list->next) {
-    if (strcmp(list->name, symbol) == 0) {      
+    if (strcmp(list->name, symbol) == 0) {
       return;
     }
   }

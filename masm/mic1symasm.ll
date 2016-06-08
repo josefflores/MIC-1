@@ -28,6 +28,9 @@
 [Ii][Nn][Ss][Pp]           return(INSP);
 [Dd][Ee][Ss][Pp]           return(DESP);
 [Hh][Aa][Ll][Tt]           return(HALT);
+[Mm][Uu][Ll][Tt]           return(MULT);
+[Rr][Ss][Hh][Ii][Ff][Tt]   return(RSHIFT);
+[Dd][Ii][Vv]               return(DIV);
 \".+\"                     return(STR);
 -?[0-9][0-9]*              return(INTEG);
 [A-Za-z][0-9A-Za-z]*:      return(LABEL);

@@ -1,62 +1,17 @@
-#define TRUE  1 
-#define FALSE 0
+#include "clock.h"
 
-struct Clock
-      {
-         int Cycle ;
-         int Subcycle ;		/* 0..4 */
-      } ;
+bool FirstSubcycle(void) { return (Quartz.Subcycle == 1); }
 
-struct Clock Quartz = {0, 0} ;		/* Quartz is of TYPE clock */
+bool SecondSubcycle(void) { return (Quartz.Subcycle == 2); }
 
-FirstSubcycle () 
-{
+bool ThirdSubcycle(void) { return (Quartz.Subcycle == 3); }
 
-    if (Quartz.Subcycle == 1) 
-            return TRUE ;
-       else return FALSE ;
+bool FourthSubcycle(void) { return (Quartz.Subcycle == 4); }
 
-}			/* END FirstSubcycle */
+int Cycle(void) { return Quartz.Cycle; }
 
-SecondSubcycle () 
-{
-
-    if (Quartz.Subcycle == 2) 
-            return TRUE ;
-       else return FALSE ;
-
-}			/* END SecondSubcycle */
-
-ThirdSubcycle () 
-{
-
-    if (Quartz.Subcycle == 3) 
-            return TRUE ;
-       else return FALSE ;
-
-}			/* END ThirdSubcycle */
-
-FourthSubcycle () 
-{
-
-    if (Quartz.Subcycle == 4) 
-            return TRUE ;
-       else return FALSE ;
-
-}			/* END FourthSubcycle */
-
-int Cycle ()
-{
-
-   return (Quartz.Cycle) ;
-
+void GeneratePulse(void) {
+  Quartz.Subcycle = (Quartz.Subcycle % CLOCK_CYCLES) + 1;
+  if (FirstSubcycle())
+    Quartz.Cycle++;
 }
-
-void GeneratePulse ()
-{
-
-    Quartz.Subcycle = (Quartz.Subcycle % 4) + 1 ;
-    if (Quartz.Subcycle == 1)
-        Quartz.Cycle = Quartz.Cycle + 1 ;
-
-}			/* END GeneratePulse */

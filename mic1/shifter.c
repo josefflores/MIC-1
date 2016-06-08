@@ -1,57 +1,40 @@
-#include <strings.h>
-#include "globals.h"
+#include "shifter.h"
 
-ShiftLeft (InputBits, ShifterOutput)
-DataBusType InputBits ;
-DataBusType ShifterOutput ;
+void ShiftLeft(DataBusType InputBits, DataBusType ShifterOutput) {
+  int i;
 
-{
-int i ;
+  for (i = 0; i < DATA_WORD_SIZE - 1; i++)
+    ShifterOutput[i] = InputBits[i + 1];
 
-    for (i = 0 ; i < DataWordSize-1 ; i++)
-       ShifterOutput[i] = InputBits[i+1] ;
+  ShifterOutput[DATA_WORD_SIZE - 2] = ZERO;
+}
 
-    ShifterOutput[DataWordSize-2] = Zero ;
-    
-}			/* END ShiftLeft */
+void ShiftRight(DataBusType InputBits, DataBusType ShifterOutput) {
+  int i;
 
-ShiftRight (InputBits, ShifterOutput)
-DataBusType InputBits ;
-DataBusType ShifterOutput ;
+  ShifterOutput[0] = ZERO;
 
-{
-int i ;
+  for (i = 1; i < DATA_WORD_SIZE - 1; i++)
+    ShifterOutput[i] = InputBits[i - 1];
+}
 
-    ShifterOutput[0] = Zero ;
+void ActivateShifter(DataBusType InputBits, TwoBits ShiftBits,
+                     DataBusType ShifterOutput) {
 
-    for (i = 1 ; i < DataWordSize-1 ; i++)
-        ShifterOutput[i] = InputBits[i-1] ;
+  Bit ShiftBit0, ShiftBit1;
 
+  ShiftBit0 = ShiftBits[0];
+  ShiftBit1 = ShiftBits[1];
 
-}			/* END ShiftRight */
+  strcpy(ShifterOutput, InputBits);
 
-ActivateShifter (InputBits, ShiftBits, ShifterOutput)
-DataBusType  InputBits ;
-TwoBits      ShiftBits ; 
-DataBusType  ShifterOutput ;
+  if ((ShiftBit0 == ZERO) && (ShiftBit1 == ONE))
 
-{
+    ShiftRight(InputBits, ShifterOutput);
 
-    Bit ShiftBit0, ShiftBit1 ;
+  else if
 
-    ShiftBit0  =  ShiftBits[0] ;
-    ShiftBit1  =  ShiftBits[1] ;
+      ((ShiftBit0 == ONE) && (ShiftBit1 == ZERO))
 
-    strcpy (ShifterOutput, InputBits) ;
-
-    if ((ShiftBit0 == Zero) && (ShiftBit1 == One))
-
-        ShiftRight (InputBits, ShifterOutput) ;
-
-    else if
-
-      ((ShiftBit0 == One) && (ShiftBit1 == Zero))
-
-         ShiftLeft (InputBits, ShifterOutput) ;
-
-}			/* END ActivateShifter */
+    ShiftLeft(InputBits, ShifterOutput);
+}
