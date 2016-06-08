@@ -2,7 +2,6 @@
 #include <stdbool.h>
 
 #include "globals.h"
-#include "variables.h"
 
 //  DECLARATIONS
 /**
