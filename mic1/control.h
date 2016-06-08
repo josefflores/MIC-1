@@ -10,10 +10,7 @@
 #include "variables.h"
 
 //  EXTERNALS
-extern bool FirstSubcycle(void);
-extern bool SecondSubcycle(void);
-extern bool ThirdSubcycle(void);
-extern bool FourthSubcycle(void);
+extern bool InSubCycle(int cycle);
 
 //  DECLARATIONS
 void BurnInProm(char *prom_file) ;

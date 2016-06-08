@@ -44,10 +44,7 @@ typedef Bit FourBits[5];
 typedef Bit EightBits[9];
 typedef Bit MicroWord[MICRO_WORD_SIZE];
 
-typedef struct Clock {
-  int Cycle;
-  int Subcycle;
-} Clock;
+
 
 typedef int ChipRange;
 

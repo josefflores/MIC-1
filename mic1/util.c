@@ -1,3 +1,4 @@
+//  INCLUDES
 #include "util.h"
 
 /* passed an array of bytes of 16 ascii 1s and 0s */

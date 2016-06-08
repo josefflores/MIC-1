@@ -1,3 +1,4 @@
+//  INCLUDES
 #include "control.h"
 
 void BurnInProm(char *prom_file) {
@@ -141,25 +142,25 @@ void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
                           TwoBits AluBits, TwoBits ShiftBits, Bit *MbrBit,
                           Bit *MarBit, Bit *ReadBit, Bit *WriteBit) {
 
-  if (FirstSubcycle()) {
+  if (InSubCycle(1)) {
     LoadMirFromControlStore();
     ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
                                ReadBit, WriteBit);
   }
 
-  if (SecondSubcycle()) {
+  if (InSubCycle(2)) {
     DecodeAField(ABits);
     DecodeBField(BBits);
     ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
                                ReadBit, WriteBit);
   }
 
-  if (ThirdSubcycle()) {
+  if (InSubCycle(3)) {
     ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
                                ReadBit, WriteBit);
   }
 
-  if (FourthSubcycle()) {
+  if (InSubCycle(4)) {
     DecodeCField(CBits);
 
     TwoBits Cond = {MIR[1], MIR[2]};

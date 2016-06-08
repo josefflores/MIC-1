@@ -1,4 +1,6 @@
+//  INCLUDES
 #include "driver.h"
+#include "clock.h"
 
 //  GLOBAL DEFINITIONS
 int power2[16] = {1,   2,   4,    8,    16,   32,   64,    128,
@@ -17,8 +19,6 @@ int nonblock_stdin_channel_flags;
 int microPc = 0;
 int rowCounter = 0;
 int MemorySlot;
-
-Clock Quartz = {0, 0};
 
 DataBusType ProgramCounter = BIT_STRING_ZERO;
 DataBusType Accumulator = BIT_STRING_ZERO;
@@ -170,7 +170,7 @@ TAG:
   }
 
   DumpRegisters();
-  ClockCycle = Cycle();
+  ClockCycle = GetCycle();
   printf("\nTotal cycles   : %d\n\n", ClockCycle);
   tcflush(0, TCIFLUSH); /* dump anything in the input queue */
                         /***********
@@ -185,7 +185,7 @@ TAG:
       if (query[0] == 'c') {
         printf("\nThe new PC is  : %s\n\n", ProgramCounter);
         microPc = 0;
-        Quartz.Subcycle = 0;
+        SetSubCycle(0);
         goto TAG;
       }
       if (query[0] == 'q' || query[0] == 'Q') {

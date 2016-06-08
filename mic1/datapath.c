@@ -1,3 +1,4 @@
+//  INCLUDES
 #include "datapath.h"
 
 void DumpRegisters(void) {
@@ -140,12 +141,12 @@ void ActivateDataPath(AddressBusType MarRegs, DataBusType MbrRegs,
   strcpy(MAR, MarRegs);
   strcpy(MBR, MbrRegs);
 
-  if (SecondSubcycle()) {
+  if (InSubCycle(2)) {
     LoadLatch(ALatch, ABits);
     LoadLatch(BLatch, BBits);
   }
 
-  if (ThirdSubcycle()) {
+  if (InSubCycle(3)) {
     if (AmuxBit == ONE)
       strcpy(LeftOperand, MBR);
     else
@@ -161,7 +162,7 @@ void ActivateDataPath(AddressBusType MarRegs, DataBusType MbrRegs,
     ActivateShifter(AluResult, ShiftBits, ShifterResult);
   }
 
-  if (FourthSubcycle()) {
+  if (InSubCycle(4)) {
     LoadRegisterBank(CBits, ShifterResult);
     if (MbrBit == ONE) {
       strcpy(MBR, ShifterResult);

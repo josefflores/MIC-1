@@ -15,10 +15,7 @@ extern void ActivateAlu(DataBusType LeftOperand, DataBusType RightOperand,
                         Bit *ZBit);
 extern void ActivateShifter(DataBusType InputBits, TwoBits ShiftBits,
                             DataBusType ShifterOutput);
-extern bool FirstSubcycle(void);
-extern bool SecondSubcycle(void);
-extern bool ThirdSubcycle(void);
-extern bool FourthSubcycle(void);
+extern bool InSubCycle(int cycle);
 extern int btoi(char *mem_loc);
 
 //  DECLARATIONS

@@ -15,7 +15,7 @@ extern int nonblock_stdin_channel_flags;
 extern char input_characters[100][80];
 extern char *inbuf;
 
-extern Clock Quartz;
+
 
 extern DataBusType ABits;//
 extern DataBusType BBits;//

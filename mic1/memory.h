@@ -1,4 +1,3 @@
-
 //  DEFINE GUARD
 #ifndef MIC1_MEMORY_H
 #define MIC1_MEMORY_H

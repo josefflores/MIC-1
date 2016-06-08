@@ -25,8 +25,6 @@ extern void ActivateCpu(AddressBusType MarRegs, DataBusType MbrRegs,
 extern void ActivateMemory(AddressBusType Address, DataBusType Data,
                            Bit ReadBit, Bit WriteBit);
 extern void DumpMemory(int From, int To);
-extern void GeneratePulse(void);
-extern int Cycle(void);
 extern void DumpRegisters(void);
 
 //  END DEFINE GUARD
