@@ -2,6 +2,47 @@
 #include "alu.h"
 
 /**
+ *  Performs alu operations, by reading the alubit code to determine what action
+ *  to take. Not sure what is happening with the nBits and zBits part of this.
+ *
+ *  @name ActivateAlu
+ *  @param <DataBusType> leftOp     The address of the Left operand Bit String
+ *  @param <DataBusType> rightOp    The address of the Right operand Bit String
+ *  @param <TwoBits>     aluBits    The alu opcode bits
+ *  @param <DataBusType> aluOutput  The address of the Alu output bit string
+ *  @param <Bit *>       nBit       TODO
+ *  @param <Bit *>       zBit       TODO
+ */
+extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp, TwoBits aluBits,
+                 DataBusType aluOutput, Bit *nBit, Bit *zBit) {
+  //  VARIABLES
+  int i;
+
+  //  Check the alu bit instructions to determine the operation.
+  if (aluBits[0] == ZERO && aluBits[1] == ZERO) {
+    //  00
+    Add(leftOp, rightOp, aluOutput);
+  } else if (aluBits[0] == ZERO && aluBits[1] == ONE) {
+    //  01
+    And(leftOp, rightOp, aluOutput);
+  } else if (aluBits[0] == ONE && aluBits[1] == ZERO) {
+    //  10
+    strcpy(aluOutput, leftOp);
+  } else if (aluBits[0] == ONE && aluBits[1] == ONE) {
+    //  11
+    NotA(leftOp, aluOutput);
+  }
+
+  //  TODO COMMENT HERE
+  *nBit = aluOutput[0];
+
+  //  TODO Comment here
+  if (strchr(aluOutput, ONE) != NULL)
+    *zBit = ZERO;
+  else
+    *zBit = ONE;
+}
+/**
  *  Performs binary addition of the left and right operands and stores them in
  *  the alu output.
  *
@@ -10,7 +51,7 @@
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-void Add(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
+static void Add(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
   //  VARIABLES
   int i;            //  Loop Counter
   Bit carry = ZERO; //  Initialize the carry bit to ZERO
@@ -51,7 +92,7 @@ void Add(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-void And(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
+static void And(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
   //  VARIABLES
   int i;
 
@@ -75,7 +116,7 @@ void And(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
  *  @param <DataBusType> leftOp     The address of the Left operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-void NotA(DataBusType leftOp, DataBusType aluOutput) {
+static void NotA(DataBusType leftOp, DataBusType aluOutput) {
   //  VARIABLES
   int i;
 
@@ -87,45 +128,4 @@ void NotA(DataBusType leftOp, DataBusType aluOutput) {
     else
       aluOutput[i] = ONE;
   }
-}
-/**
- *  Performs alu operations, by reading the alubit code to determine what action
- *  to take. Not sure what is happening with the nBits and zBits part of this.
- *
- *  @name ActivateAlu
- *  @param <DataBusType> leftOp     The address of the Left operand Bit String
- *  @param <DataBusType> rightOp    The address of the Right operand Bit String
- *  @param <TwoBits>     aluBits    The alu opcode bits
- *  @param <DataBusType> aluOutput  The address of the Alu output bit string
- *  @param <Bit *>       nBit       TODO
- *  @param <Bit *>       zBit       TODO
- */
-void ActivateAlu(DataBusType leftOp, DataBusType rightOp, TwoBits aluBits,
-                 DataBusType aluOutput, Bit *nBit, Bit *zBit) {
-  //  VARIABLES
-  int i;
-
-  //  Check the alu bit instructions to determine the operation.
-  if (aluBits[0] == ZERO && aluBits[1] == ZERO) {
-    //  00
-    Add(leftOp, rightOp, aluOutput);
-  } else if (aluBits[0] == ZERO && aluBits[1] == ONE) {
-    //  01
-    And(leftOp, rightOp, aluOutput);
-  } else if (aluBits[0] == ONE && aluBits[1] == ZERO) {
-    //  10
-    strcpy(aluOutput, leftOp);
-  } else if (aluBits[0] == ONE && aluBits[1] == ONE) {
-    //  11
-    NotA(leftOp, aluOutput);
-  }
-
-  //  TODO COMMENT HERE
-  *nBit = aluOutput[0];
-
-  //  TODO Comment here
-  if (strchr(aluOutput, ONE) != NULL)
-    *zBit = ZERO;
-  else
-    *zBit = ONE;
 }

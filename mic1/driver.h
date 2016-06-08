@@ -14,6 +14,7 @@
 #include "variables.h"
 #include "util.h"
 #include "datapath.h"
+#include "clock.h"
 
 
 //  DECLARATIONS

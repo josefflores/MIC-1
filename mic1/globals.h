@@ -44,8 +44,6 @@ typedef Bit FourBits[5];
 typedef Bit EightBits[9];
 typedef Bit MicroWord[MICRO_WORD_SIZE];
 
-
-
 typedef int ChipRange;
 
 typedef DataBusType Memory_Chip[MEMORY_CHIP_SIZE];

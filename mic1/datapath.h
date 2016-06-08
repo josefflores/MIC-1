@@ -3,19 +3,18 @@
 #define MIC1_DATAPATH_H
 
 //  INCLUDES
-#include "globals.h"
-#include "variables.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <strings.h>
 
+#include "globals.h"
+#include "variables.h"
+#include "clock.h"
+#include "alu.h"
+
 //  EXTERNAL DECLARATIONS
-extern void ActivateAlu(DataBusType LeftOperand, DataBusType RightOperand,
-                        TwoBits AluBits, DataBusType AluOutput, Bit *NBit,
-                        Bit *ZBit);
 extern void ActivateShifter(DataBusType InputBits, TwoBits ShiftBits,
                             DataBusType ShifterOutput);
-extern bool InSubCycle(int cycle);
 extern int btoi(char *mem_loc);
 
 //  DECLARATIONS

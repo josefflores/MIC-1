@@ -1,6 +1,5 @@
 //  INCLUDES
 #include "driver.h"
-#include "clock.h"
 
 //  GLOBAL DEFINITIONS
 int power2[16] = {1,   2,   4,    8,    16,   32,   64,    128,
