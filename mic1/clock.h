@@ -30,13 +30,11 @@ extern int GetCycle(void);
  */
 extern void GeneratePulse(void);
 /**
- *  Sets the number of clock SubCycles to a cycle value between 0 and
- *  CLOCK_CYCLES inclusive.
+ *  Resets the subCycle count to 0.
  *
- *  @function SetSubCycle
- *  @return   <int>   The number of clock cycles
+ *  @function resetClockSubCycle
  */
-extern int SetSubCycle(int subCycle);
+extern void resetClockSubCycle(void);
 /**
  *  Increments a SubCycle to an integer between 1 and CLOCK_CYCLES
  *

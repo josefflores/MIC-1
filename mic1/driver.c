@@ -15,8 +15,7 @@ int input_x = 0, input_y = 0, input_buf = 0;
 int original_stdin_channel_flags;
 int nonblock_stdin_channel_flags;
 
-int microPc = 0;
-int rowCounter = 0;
+
 int MemorySlot;
 
 DataBusType ProgramCounter = BIT_STRING_ZERO;
@@ -63,8 +62,7 @@ Bit MarBit;//
 TwoBits AluBits;//
 TwoBits ShiftBits;//
 
-MicroWord MIR;                   //
-MicroWord microMemory[MAX_SIZE]; //
+
 
 
 //  DRIVER
@@ -183,8 +181,8 @@ TAG:
       fgets(query, 79, stdin);
       if (query[0] == 'c') {
         printf("\nThe new PC is  : %s\n\n", ProgramCounter);
-        microPc = 0;
-        SetSubCycle(0);
+        resetMicroPC();
+        resetClockSubCycle();
         goto TAG;
       }
       if (query[0] == 'q' || query[0] == 'Q') {

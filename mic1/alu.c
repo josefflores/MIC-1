@@ -1,6 +1,7 @@
 //  INCLUDES
 #include "alu.h"
 
+//  DEFINITIONS
 /**
  *  Performs alu operations, by reading the alubit code to determine what action
  *  to take. Not sure what is happening with the nBits and zBits part of this.
@@ -13,34 +14,45 @@
  *  @param <Bit *>       nBit       TODO
  *  @param <Bit *>       zBit       TODO
  */
-extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp, TwoBits aluBits,
-                 DataBusType aluOutput, Bit *nBit, Bit *zBit) {
+extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp,
+                        TwoBits aluBits, DataBusType aluOutput, Bit *nBit,
+                        Bit *zBit) {
   //  VARIABLES
   int i;
 
   //  Check the alu bit instructions to determine the operation.
   if (aluBits[0] == ZERO && aluBits[1] == ZERO) {
-    //  00
+    //  00 : A + B
     Add(leftOp, rightOp, aluOutput);
   } else if (aluBits[0] == ZERO && aluBits[1] == ONE) {
-    //  01
+    //  01 : A and B
     And(leftOp, rightOp, aluOutput);
   } else if (aluBits[0] == ONE && aluBits[1] == ZERO) {
-    //  10
-    strcpy(aluOutput, leftOp);
+    //  10 : A
+    passThrough(leftOp, aluOutput);
   } else if (aluBits[0] == ONE && aluBits[1] == ONE) {
-    //  11
+    //  11 : ~A
     NotA(leftOp, aluOutput);
   }
 
-  //  TODO COMMENT HERE
+  //  If aluOutput[0] is on, then the nBit should be on
   *nBit = aluOutput[0];
 
-  //  TODO Comment here
+  //  If any bit is on, then turn off the zBit otherwise turn it on
   if (strchr(aluOutput, ONE) != NULL)
     *zBit = ZERO;
   else
     *zBit = ONE;
+}
+/**
+ *  Passes an input through to the alu output.
+ *
+ *  @name passThrough
+ *  @param <DataBusType> leftOp     The address of the Left operand Bit String
+ *  @param <DataBusType> aluOutput  The address of the Alu output bit string
+ */
+static void passThrough(DataBusType leftOp, DataBusType aluOutput) {
+  strcpy(leftOp, aluOutput);
 }
 /**
  *  Performs binary addition of the left and right operands and stores them in
@@ -51,7 +63,8 @@ extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp, TwoBits aluBits
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-static void Add(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
+static void Add(DataBusType leftOp, DataBusType rightOp,
+                DataBusType aluOutput) {
   //  VARIABLES
   int i;            //  Loop Counter
   Bit carry = ZERO; //  Initialize the carry bit to ZERO
@@ -92,7 +105,8 @@ static void Add(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) 
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-static void And(DataBusType leftOp, DataBusType rightOp, DataBusType aluOutput) {
+static void And(DataBusType leftOp, DataBusType rightOp,
+                DataBusType aluOutput) {
   //  VARIABLES
   int i;
 

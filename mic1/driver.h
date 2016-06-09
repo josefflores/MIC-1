@@ -10,15 +10,16 @@
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
+
 #include "globals.h"
 #include "variables.h"
 #include "util.h"
 #include "datapath.h"
 #include "clock.h"
+#include "control.h"
 
 
 //  DECLARATIONS
-extern void BurnInProm(char *prom_file);
 extern void InitializeMemory(char *program_file);
 extern void InitializePCandStackPointer(int pc, int sp);
 extern void ActivateCpu(AddressBusType MarRegs, DataBusType MbrRegs,

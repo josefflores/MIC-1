@@ -1,48 +1,39 @@
-//  DEFINE GUARD
-#ifndef MIC1_CONTROL_H
-#define MIC1_CONTROL_H
-
 //  INCLUDES
 #include <stdbool.h>
 #include <stdio.h>
 #include <strings.h>
+
+#include "clock.h"
 #include "globals.h"
 #include "variables.h"
 
-//  EXTERNALS
-extern bool InSubCycle(int cycle);
-
 //  DECLARATIONS
-void BurnInProm(char *prom_file) ;
+extern void resetMicroPC(void);
 
-void OutputProm(void) ;
+extern void BurnInProm(char *promFile);
 
-int BusRegister(FourBits RField) ;
+extern void OutputProm(void);
 
-void DecodeRegField(FourBits RField, DataBusType Field) ;
+extern void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
+                                 DataBusType BBits, DataBusType CBits,
+                                 Bit *AmuxBit, TwoBits AluBits,
+                                 TwoBits ShiftBits, Bit *MbrBit, Bit *MarBit,
+                                 Bit *ReadBit, Bit *WriteBit);
 
-void DecodeAField(DataBusType ABits) ;
+static int BusRegister(FourBits RField);
 
-void DecodeBField(DataBusType BBits) ;
+static void DecodeRegField(FourBits RField, DataBusType Field);
 
-void DecodeCField(DataBusType CBits) ;
+static void DecodeAField(DataBusType ABits);
 
-void LoadMirFromControlStore(void) ;
+static void DecodeBField(DataBusType BBits);
 
-void DetermineMmux(Bit NBit, Bit ZBit, TwoBits Cond, Bit *Mmux) ;
+static void DecodeCField(DataBusType CBits);
 
-int ConvertToCardinal(EightBits Addr) ;
+static void LoadMirFromControlStore(void);
 
-void LoadMicroProgramCounter(Bit NBit, Bit ZBit, TwoBits Cond, EightBits Addr) ;
+static char DetermineMmux(Bit NBit, Bit ZBit);
 
-void ActivateControlStoreHelper(Bit *AmuxBit, TwoBits AluBits,
-                                TwoBits ShiftBits, Bit *MbrBit, Bit *MarBit,
-                                Bit *ReadBit, Bit *WriteBit) ;
+static int ConvertToCardinal(Bit *Addr, int numBits);
 
-void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
-                          DataBusType BBits, DataBusType CBits, Bit *AmuxBit,
-                          TwoBits AluBits, TwoBits ShiftBits, Bit *MbrBit,
-                          Bit *MarBit, Bit *ReadBit, Bit *WriteBit) ;
-
-//  END DEFINE GUARD
-#endif
+static void LoadMicroProgramCounter(Bit NBit, Bit ZBit);

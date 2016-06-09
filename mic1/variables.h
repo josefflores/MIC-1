@@ -2,8 +2,6 @@
 #include "globals.h"
 
 //  DECLARATIONS
-extern int microPc;
-extern int rowCounter;
 extern int power2[16];
 extern int polled_io;
 extern int input_x;
@@ -14,8 +12,6 @@ extern int nonblock_stdin_channel_flags;
 
 extern char input_characters[100][80];
 extern char *inbuf;
-
-
 
 extern DataBusType ABits;//
 extern DataBusType BBits;//
@@ -53,11 +49,7 @@ extern Bit MarBit;//
 extern TwoBits AluBits;//
 extern TwoBits ShiftBits;//
 
-extern MicroWord MIR;                   //
-extern MicroWord microMemory[MAX_SIZE]; //
-
 extern Memory_Chip MemoryChip0;
 extern Memory_Chip MemoryChip1;
 extern Memory_Chip MemoryChip2;
 extern Memory_Chip MemoryChip3;
-

@@ -1,14 +1,20 @@
 //  INCLUDES
 #include "clock.h"
 
+//  TYPEDEFINES
+/**
+ *  Defines a clock structure, It is used to keep track of subcycles and total
+ *  cycles.
+ */
 typedef struct Clock {
-  int Cycle;
-  int Subcycle;
+  int cycle;    //  number of subCycles/ pulse circuits that have competed.
+  int subCycle; //  A pulse count
 } Clock;
 
-//  Variables
-static Clock Quartz = {0, 0};
+//  VARIABLES
+static Clock sysClock;
 
+//  DEFINITIONS
 /**
  *  Determine if it is in a given subcycle of the clock.
  *
@@ -19,7 +25,7 @@ static Clock Quartz = {0, 0};
  */
 extern bool InSubCycle(int subCycle) {
   //  if the subcycle matches the expected subcycle
-  return (Quartz.Subcycle == subCycle);
+  return (sysClock.subCycle == subCycle);
 }
 /**
  *  Gets the number of clock cycles that have occured.
@@ -29,18 +35,14 @@ extern bool InSubCycle(int subCycle) {
  */
 extern int GetCycle(void) {
   //  return the number of cycles that have occured
-  return Quartz.Cycle;
+  return sysClock.cycle;
 }
 /**
- *  Sets the number of clock SubCycles to a cycle value between 0 and
- *  CLOCK_CYCLES inclusive.
+ *  Resets the subCycle count to 0.
  *
- *  @function SetSubCycle
- *  @return   <int>   The number of clock cycles
+ *  @function resetClockSubCycle
  */
-extern int SetSubCycle(int subCycle) {
-  Quartz.Subcycle = subCycle % (CLOCK_CYCLES + 1);
-}
+extern void resetClockSubCycle(void) { sysClock.subCycle = 0; }
 /**
  *  Generate a pulse of the clock, this moves through the subcycles and
  *  increments the total number of cycles.
@@ -60,11 +62,11 @@ extern void GeneratePulse(void) {
  *  @function IncrementSubCycle
  */
 static void IncrementSubCycle(void) {
-  Quartz.Subcycle = (Quartz.Subcycle % CLOCK_CYCLES) + 1;
+  sysClock.subCycle = (sysClock.subCycle % CLOCK_CYCLES) + 1;
 }
 /**
  *  Increments a clock Cycle.
  *
  *  @function IncrementCycle
  */
-static void IncrementCycle(void) { Quartz.Cycle++; }
+static void IncrementCycle(void) { sysClock.cycle++; }

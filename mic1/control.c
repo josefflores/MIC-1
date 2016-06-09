@@ -1,47 +1,78 @@
 //  INCLUDES
 #include "control.h"
 
-void BurnInProm(char *prom_file) {
+//  VARIABLES
+static int rowCounter = 0;
+static int microPc = 0;
+static MicroWord mir;
+static MicroWord microMemory[MAX_SIZE];
 
-  int row, col;
+//  DEFINITIONS
+extern void resetMicroPC(void) { microPc = 0; }
+extern void BurnInProm(char *promFile) {
+
+  int r, c;
   char code[MICRO_WORD_SIZE]; /* width of control store code      */
-  FILE *inputfile;            /* pointer to input file library    */
+  FILE *fp;                   /* pointer to input file library    */
 
   //  Zero out microMemory
-  for (row = 0; row < MAX_SIZE; ++row)
-    for (col = 0; col < MICRO_WORD_SIZE - 1; ++col)
-      microMemory[row][col] = ZERO;
+  for (r = 0; r < MAX_SIZE; ++r)
+    for (c = 0; c < MICRO_WORD_SIZE - 1; ++c)
+      microMemory[r][c] = ZERO;
 
   //  Open promfile for loading
-  if ((inputfile = fopen(prom_file, "r")) == NULL)
-    if ((inputfile = fopen("promfile.dat", "r")) == NULL) {
-      fprintf(stderr, "Can't open Promfile, aborting \n");
-      exit(2);
-    }
+  if ((fp = fopen(promFile, "r")) || (fp = fopen("promfile.dat", "r"))) {
+    fprintf(stderr, "Can't open Promfile, aborting \n");
+    exit(2);
+  }
 
   // Read in code LINE BY LINE and scan it
-  for (row = 0; fscanf(inputfile, "%s", code) != EOF; ++row){
-    for (col = 0; col < MICRO_WORD_SIZE - 1; ++col)
-      microMemory[row][col] = code[col];
+  for (r = 0; fscanf(fp, "%s", code) != EOF; ++r) {
+    for (c = 0; c < MICRO_WORD_SIZE - 1; ++c)
+      microMemory[r][c] = code[c];
     ++rowCounter;
   }
 
   fprintf(stderr, "\nRead in %d micro instructions\n", rowCounter);
-  fclose(inputfile);
+  fclose(fp);
 }
+extern void OutputProm(void) {
+  int r, c;
 
-void OutputProm(void) {
-  int row, col;
-
-  for (row = 0; row < rowCounter; ++row) {
-    for (col = 0; col < MICRO_WORD_SIZE - 1; ++col)
-      printf("%c", microMemory[row][col]);
+  for (r = 0; r < rowCounter; ++r) {
+    for (c = 0; c < MICRO_WORD_SIZE - 1; ++c)
+      printf("%c", microMemory[r][c]);
 
     printf("\n");
   }
 }
+extern void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
+                                 DataBusType BBits, DataBusType CBits,
+                                 Bit *AmuxBit, TwoBits AluBits,
+                                 TwoBits ShiftBits, Bit *MbrBit, Bit *MarBit,
+                                 Bit *ReadBit, Bit *WriteBit) {
 
-int BusRegister(FourBits RField) {
+  if (InSubCycle(1)) {
+    LoadMirFromControlStore();
+  } else if (InSubCycle(2)) {
+    DecodeAField(ABits);
+    DecodeBField(BBits);
+  } else if (InSubCycle(4)) {
+    DecodeCField(CBits);
+    LoadMicroProgramCounter(NBit, ZBit);
+  }
+
+  *AmuxBit = mir[0];
+  AluBits[0] = mir[3];
+  AluBits[1] = mir[4];
+  ShiftBits[0] = mir[5];
+  ShiftBits[1] = mir[6];
+  *MbrBit = mir[7];
+  *MarBit = mir[8];
+  *ReadBit = mir[9];
+  *WriteBit = mir[10];
+}
+static int BusRegister(FourBits RField) {
   int sum = 0;
 
   if (RField[3] == ONE)
@@ -55,120 +86,57 @@ int BusRegister(FourBits RField) {
     sum += 8;
 
   return sum;
-
 }
-
-void DecodeRegField(FourBits RField, DataBusType Field) {
+static void DecodeRegField(FourBits RField, DataBusType Field) {
   char str[] = BIT_STRING_ZERO;
 
   str[BusRegister(RField)] = ONE;
 
   strcpy(Field, str);
 }
-
-void DecodeAField(DataBusType ABits) {
-  FourBits AField = {MIR[20], MIR[21], MIR[22], MIR[23]};
+static void DecodeAField(DataBusType ABits) {
+  FourBits AField = {mir[20], mir[21], mir[22], mir[23]};
   DecodeRegField(AField, ABits);
 }
-
-void DecodeBField(DataBusType BBits) {
-  FourBits BField = {MIR[16], MIR[17], MIR[18], MIR[19]};
+static void DecodeBField(DataBusType BBits) {
+  FourBits BField = {mir[16], mir[17], mir[18], mir[19]};
   DecodeRegField(BField, BBits);
 }
+static void DecodeCField(DataBusType CBits) {
+  FourBits CField = {mir[12], mir[13], mir[14], mir[15]};
 
-void DecodeCField(DataBusType CBits) {
-  FourBits CField = {MIR[12], MIR[13], MIR[14], MIR[15]};
-
-  if (MIR[11] == ONE)
+  if (mir[11] == ONE)
     DecodeRegField(CField, CBits);
   else
     strcpy(CBits, BIT_STRING_ZERO);
 }
-
-void LoadMirFromControlStore(void) {
+static void LoadMirFromControlStore(void) {
   int i;
 
   for (i = 0; i < MICRO_WORD_SIZE - 1; ++i)
-    MIR[i] = microMemory[microPc][i];
+    mir[i] = microMemory[microPc][i];
 }
+static char DetermineMmux(Bit NBit, Bit ZBit) {
+  if ((mir[1] == ONE && mir[2] == ONE) ||
+      (mir[1] == ONE && mir[2] == ZERO && ZBit == ONE) ||
+      (mir[1] == ZERO && mir[2] == ONE && NBit == ONE))
+    return ONE;
 
-void DetermineMmux(Bit NBit, Bit ZBit, TwoBits Cond, Bit *Mmux) {
-  if ((Cond[0] == ONE && Cond[1] == ONE) ||
-      (Cond[0] == ONE && Cond[1] == ZERO && ZBit == ONE) ||
-      (Cond[0] == ZERO && Cond[1] == ONE && NBit == ONE))
-    *Mmux = ONE;
-  else
-    *Mmux = ZERO;
+  return ZERO;
 }
-
-int ConvertToCardinal(EightBits Addr) {
+static int ConvertToCardinal(Bit *Addr, int numBits) {
   int i, sum;
 
-  for (i = sum = 0; i <= 7; ++i) {
+  for (i = sum = 0; i < numBits; ++i) {
     sum *= 2;
     if (Addr[i] == ONE)
       sum += 1;
   }
   return sum;
 }
-
-void LoadMicroProgramCounter(Bit NBit, Bit ZBit, TwoBits Cond, EightBits Addr) {
-  Bit Mmux;
-
-  DetermineMmux(NBit, ZBit, Cond, &Mmux);
-
-  if (Mmux == ZERO)
+static void LoadMicroProgramCounter(Bit NBit, Bit ZBit) {
+  if (DetermineMmux(NBit, ZBit) == ZERO)
     microPc += 1;
   else
-    microPc = ConvertToCardinal(Addr);
-}
-
-void ActivateControlStoreHelper(Bit *AmuxBit, TwoBits AluBits,
-                                TwoBits ShiftBits, Bit *MbrBit, Bit *MarBit,
-                                Bit *ReadBit, Bit *WriteBit) {
-  *AmuxBit = MIR[0];
-  AluBits[0] = MIR[3];
-  AluBits[1] = MIR[4];
-  ShiftBits[0] = MIR[5];
-  ShiftBits[1] = MIR[6];
-  *MbrBit = MIR[7];
-  *MarBit = MIR[8];
-  *ReadBit = MIR[9];
-  *WriteBit = MIR[10];
-}
-
-void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
-                          DataBusType BBits, DataBusType CBits, Bit *AmuxBit,
-                          TwoBits AluBits, TwoBits ShiftBits, Bit *MbrBit,
-                          Bit *MarBit, Bit *ReadBit, Bit *WriteBit) {
-
-  if (InSubCycle(1)) {
-    LoadMirFromControlStore();
-    ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
-                               ReadBit, WriteBit);
-  }
-
-  if (InSubCycle(2)) {
-    DecodeAField(ABits);
-    DecodeBField(BBits);
-    ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
-                               ReadBit, WriteBit);
-  }
-
-  if (InSubCycle(3)) {
-    ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
-                               ReadBit, WriteBit);
-  }
-
-  if (InSubCycle(4)) {
-    DecodeCField(CBits);
-
-    TwoBits Cond = {MIR[1], MIR[2]};
-    EightBits Addr = {MIR[24], MIR[25], MIR[26], MIR[27],
-                      MIR[28], MIR[29], MIR[30], MIR[31]};
-
-    LoadMicroProgramCounter(NBit, ZBit, Cond, Addr);
-    ActivateControlStoreHelper(AmuxBit, AluBits, ShiftBits, MbrBit, MarBit,
-                               ReadBit, WriteBit);
-  }
+    microPc = ConvertToCardinal(mir + 24, 8);
 }
