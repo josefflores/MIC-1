@@ -1,65 +1,97 @@
 //  INCLUDES
 #include "control.h"
 
+//  TYPEDEFINES
+/**
+ *  Defines a Prom structure, It is used to keep track of the microcode
+ *  cycles.
+ */
+typedef struct Prom {
+  int length; //  The length of the microcode.
+  int pc;     //  The position in the microcode when running the program.
+  MicroWord memBlock[MAX_SIZE]; // The microcode memory block.
+} Prom;
+
 //  VARIABLES
-static int rowCounter = 0;
-static int microPc = 0;
 static MicroWord mir;
-static MicroWord microMemory[MAX_SIZE];
+static Prom prom = {0, 0, STR_END};
 
 //  DEFINITIONS
-extern void resetMicroPC(void) { microPc = 0; }
-extern void BurnInProm(char *promFile) {
+/**
+ *  Resets the the program microcode position
+ *
+ *  @function resetPromPC
+ */
+extern void resetPromPC(void) { prom.pc = 0; }
+/**
+ *  Copies the promfile into memory
+ *
+ *  @function readProm
+ *  @param  <char *> promfile The file name string
+ *  @exit 2 File open error, the given file or default file could not be opened.
+ */
+extern void readProm(char *promFile) {
+  //  VARIABLES
+  int r, c;                   //  Loop counters, r: row, c: column
+  char code[MICRO_WORD_SIZE]; //  Width of micro code string
+  FILE *fp;                   //  Pointer to input file library
 
-  int r, c;
-  char code[MICRO_WORD_SIZE]; /* width of control store code      */
-  FILE *fp;                   /* pointer to input file library    */
-
-  //  Zero out microMemory
+  //  Zero out the prom memory block
   for (r = 0; r < MAX_SIZE; ++r)
     for (c = 0; c < MICRO_WORD_SIZE - 1; ++c)
-      microMemory[r][c] = ZERO;
+      prom.memBlock[r][c] = ZERO;
 
-  //  Open promfile for loading
-  if ((fp = fopen(promFile, "r")) || (fp = fopen("promfile.dat", "r"))) {
-    fprintf(stderr, "Can't open Promfile, aborting \n");
+  /**
+   *  Open promfile for loading, First attempts a given file name and then a
+   *  default file name.
+   */
+  if ((fp = fopen(promFile, "r")) || (fp = fopen(DEFAULT_FILE, "r"))) {
+    fprintf(stderr, "Can't open %s or %s, aborting \n", promFile, DEFAULT_FILE);
     exit(2);
   }
 
-  // Read in code LINE BY LINE and scan it
+  /**
+   *  Read in prom line by line, then write each character of the line to the
+   *  prom.memBlock block.
+   */
   for (r = 0; fscanf(fp, "%s", code) != EOF; ++r) {
     for (c = 0; c < MICRO_WORD_SIZE - 1; ++c)
-      microMemory[r][c] = code[c];
-    ++rowCounter;
+      prom.memBlock[r][c] = code[c];
+    //  Keep track of the number of rows that where written to prom.memBlock
+    prom.length++;
   }
-
-  fprintf(stderr, "\nRead in %d micro instructions\n", rowCounter);
+  //  Close file pointer
   fclose(fp);
+
+  //  Display number of instructions that were read into the prom.memBlock.
+  fprintf(stderr, "\nRead in %d micro instructions\n", prom.length);
 }
-extern void OutputProm(void) {
+
+extern void writeProm(void) {
+  //  VARIABLES
   int r, c;
 
-  for (r = 0; r < rowCounter; ++r) {
+  for (r = 0; r < prom.length; ++r) {
     for (c = 0; c < MICRO_WORD_SIZE - 1; ++c)
-      printf("%c", microMemory[r][c]);
+      printf("%c", prom.memBlock[r][c]);
 
     printf("\n");
   }
 }
-extern void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
+extern void activateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
                                  DataBusType BBits, DataBusType CBits,
                                  Bit *AmuxBit, TwoBits AluBits,
                                  TwoBits ShiftBits, Bit *MbrBit, Bit *MarBit,
                                  Bit *ReadBit, Bit *WriteBit) {
 
   if (InSubCycle(1)) {
-    LoadMirFromControlStore();
+    loadMirFromControlStore();
   } else if (InSubCycle(2)) {
-    DecodeAField(ABits);
-    DecodeBField(BBits);
+    decodeField_A(ABits);
+    decodeField_B(BBits);
   } else if (InSubCycle(4)) {
-    DecodeCField(CBits);
-    LoadMicroProgramCounter(NBit, ZBit);
+    decodeField_C(CBits);
+    loadMicroProgramCounter(NBit, ZBit);
   }
 
   *AmuxBit = mir[0];
@@ -72,7 +104,7 @@ extern void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
   *ReadBit = mir[9];
   *WriteBit = mir[10];
 }
-static int BusRegister(FourBits RField) {
+static int busRegister(FourBits RField) {
   int sum = 0;
 
   if (RField[3] == ONE)
@@ -87,36 +119,36 @@ static int BusRegister(FourBits RField) {
 
   return sum;
 }
-static void DecodeRegField(FourBits RField, DataBusType Field) {
+static void decodeField_Reg(FourBits RField, DataBusType Field) {
   char str[] = BIT_STRING_ZERO;
 
-  str[BusRegister(RField)] = ONE;
+  str[busRegister(RField)] = ONE;
 
   strcpy(Field, str);
 }
-static void DecodeAField(DataBusType ABits) {
+static void decodeField_A(DataBusType ABits) {
   FourBits AField = {mir[20], mir[21], mir[22], mir[23]};
-  DecodeRegField(AField, ABits);
+  decodeField_Reg(AField, ABits);
 }
-static void DecodeBField(DataBusType BBits) {
+static void decodeField_B(DataBusType BBits) {
   FourBits BField = {mir[16], mir[17], mir[18], mir[19]};
-  DecodeRegField(BField, BBits);
+  decodeField_Reg(BField, BBits);
 }
-static void DecodeCField(DataBusType CBits) {
+static void decodeField_C(DataBusType CBits) {
   FourBits CField = {mir[12], mir[13], mir[14], mir[15]};
 
   if (mir[11] == ONE)
-    DecodeRegField(CField, CBits);
+    decodeField_Reg(CField, CBits);
   else
     strcpy(CBits, BIT_STRING_ZERO);
 }
-static void LoadMirFromControlStore(void) {
+static void loadMirFromControlStore(void) {
   int i;
 
   for (i = 0; i < MICRO_WORD_SIZE - 1; ++i)
-    mir[i] = microMemory[microPc][i];
+    mir[i] = prom.memBlock[prom.pc][i];
 }
-static char DetermineMmux(Bit NBit, Bit ZBit) {
+static char determineMmux(Bit NBit, Bit ZBit) {
   if ((mir[1] == ONE && mir[2] == ONE) ||
       (mir[1] == ONE && mir[2] == ZERO && ZBit == ONE) ||
       (mir[1] == ZERO && mir[2] == ONE && NBit == ONE))
@@ -124,7 +156,7 @@ static char DetermineMmux(Bit NBit, Bit ZBit) {
 
   return ZERO;
 }
-static int ConvertToCardinal(Bit *Addr, int numBits) {
+static int convertToCardinal(Bit *Addr, int numBits) {
   int i, sum;
 
   for (i = sum = 0; i < numBits; ++i) {
@@ -134,9 +166,9 @@ static int ConvertToCardinal(Bit *Addr, int numBits) {
   }
   return sum;
 }
-static void LoadMicroProgramCounter(Bit NBit, Bit ZBit) {
-  if (DetermineMmux(NBit, ZBit) == ZERO)
-    microPc += 1;
+static void loadMicroProgramCounter(Bit NBit, Bit ZBit) {
+  if (determineMmux(NBit, ZBit) == ZERO)
+    prom.pc += 1;
   else
-    microPc = ConvertToCardinal(mir + 24, 8);
+    prom.pc = convertToCardinal(mir + 24, 8);
 }

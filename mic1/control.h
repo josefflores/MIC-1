@@ -3,37 +3,37 @@
 #include <stdio.h>
 #include <strings.h>
 
-#include "clock.h"
 #include "globals.h"
 #include "variables.h"
+#include "clock.h"
 
 //  DECLARATIONS
-extern void resetMicroPC(void);
+extern void resetPromPC(void);
 
-extern void BurnInProm(char *promFile);
+extern void readProm(char *promFile);
 
-extern void OutputProm(void);
+extern void writeProm(void);
 
-extern void ActivateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
+extern void activateControlStore(Bit NBit, Bit ZBit, DataBusType ABits,
                                  DataBusType BBits, DataBusType CBits,
                                  Bit *AmuxBit, TwoBits AluBits,
                                  TwoBits ShiftBits, Bit *MbrBit, Bit *MarBit,
                                  Bit *ReadBit, Bit *WriteBit);
 
-static int BusRegister(FourBits RField);
+static int busRegister(FourBits RField);
 
-static void DecodeRegField(FourBits RField, DataBusType Field);
+static void decodeField_Reg(FourBits RField, DataBusType Field);
 
-static void DecodeAField(DataBusType ABits);
+static void decodeField_A(DataBusType ABits);
 
-static void DecodeBField(DataBusType BBits);
+static void decodeField_B(DataBusType BBits);
 
-static void DecodeCField(DataBusType CBits);
+static void decodeField_C(DataBusType CBits);
 
-static void LoadMirFromControlStore(void);
+static void loadMirFromControlStore(void);
 
-static char DetermineMmux(Bit NBit, Bit ZBit);
+static char determineMmux(Bit NBit, Bit ZBit);
 
-static int ConvertToCardinal(Bit *Addr, int numBits);
+static int convertToCardinal(Bit *Addr, int numBits);
 
-static void LoadMicroProgramCounter(Bit NBit, Bit ZBit);
+static void loadMicroProgramCounter(Bit NBit, Bit ZBit);

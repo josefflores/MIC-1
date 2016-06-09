@@ -158,7 +158,7 @@ void ActivateDataPath(AddressBusType MarRegs, DataBusType MbrRegs,
     }
 
     strcpy(RightOperand, BLatch);
-    ActivateAlu(LeftOperand, RightOperand, AluBits, AluResult, NBit, ZBit);
+    activateAlu(LeftOperand, RightOperand, AluBits, AluResult, NBit, ZBit);
     ActivateShifter(AluResult, ShiftBits, ShifterResult);
   }
 

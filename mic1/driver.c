@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
       input_characters[i][j] = STR_END;
   }
 
-  BurnInProm(promfile);
+  readProm(promfile);
   InitializeMemory(programfile);
   InitializePCandStackPointer(pc, sp);
   strcpy(Address, "000000000000");
@@ -181,7 +181,7 @@ TAG:
       fgets(query, 79, stdin);
       if (query[0] == 'c') {
         printf("\nThe new PC is  : %s\n\n", ProgramCounter);
-        resetMicroPC();
+        resetPromPC();
         resetClockSubCycle();
         goto TAG;
       }

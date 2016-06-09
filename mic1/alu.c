@@ -6,7 +6,7 @@
  *  Performs alu operations, by reading the alubit code to determine what action
  *  to take. Not sure what is happening with the nBits and zBits part of this.
  *
- *  @name ActivateAlu
+ *  @function activateAlu
  *  @param <DataBusType> leftOp     The address of the Left operand Bit String
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <TwoBits>     aluBits    The alu opcode bits
@@ -14,7 +14,7 @@
  *  @param <Bit *>       nBit       TODO
  *  @param <Bit *>       zBit       TODO
  */
-extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp,
+extern void activateAlu(DataBusType leftOp, DataBusType rightOp,
                         TwoBits aluBits, DataBusType aluOutput, Bit *nBit,
                         Bit *zBit) {
   //  VARIABLES
@@ -23,16 +23,16 @@ extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp,
   //  Check the alu bit instructions to determine the operation.
   if (aluBits[0] == ZERO && aluBits[1] == ZERO) {
     //  00 : A + B
-    Add(leftOp, rightOp, aluOutput);
+    add(leftOp, rightOp, aluOutput);
   } else if (aluBits[0] == ZERO && aluBits[1] == ONE) {
     //  01 : A and B
-    And(leftOp, rightOp, aluOutput);
+    and(leftOp, rightOp, aluOutput);
   } else if (aluBits[0] == ONE && aluBits[1] == ZERO) {
     //  10 : A
     passThrough(leftOp, aluOutput);
   } else if (aluBits[0] == ONE && aluBits[1] == ONE) {
     //  11 : ~A
-    NotA(leftOp, aluOutput);
+    notA(leftOp, aluOutput);
   }
 
   //  If aluOutput[0] is on, then the nBit should be on
@@ -47,7 +47,7 @@ extern void ActivateAlu(DataBusType leftOp, DataBusType rightOp,
 /**
  *  Passes an input through to the alu output.
  *
- *  @name passThrough
+ *  @function passThrough
  *  @param <DataBusType> leftOp     The address of the Left operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
@@ -58,12 +58,12 @@ static void passThrough(DataBusType leftOp, DataBusType aluOutput) {
  *  Performs binary addition of the left and right operands and stores them in
  *  the alu output.
  *
- *  @name Add
+ *  @function add
  *  @param <DataBusType> leftOp     The address of the Left operand Bit String
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-static void Add(DataBusType leftOp, DataBusType rightOp,
+static void add(DataBusType leftOp, DataBusType rightOp,
                 DataBusType aluOutput) {
   //  VARIABLES
   int i;            //  Loop Counter
@@ -100,12 +100,12 @@ static void Add(DataBusType leftOp, DataBusType rightOp,
  *  Performs bitwise And of the left and right operands and stores them in
  *  the alu output.
  *
- *  @name And
+ *  @function and
  *  @param <DataBusType> leftOp     The address of the Left operand Bit String
  *  @param <DataBusType> rightOp    The address of the Right operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-static void And(DataBusType leftOp, DataBusType rightOp,
+static void and(DataBusType leftOp, DataBusType rightOp,
                 DataBusType aluOutput) {
   //  VARIABLES
   int i;
@@ -126,11 +126,11 @@ static void And(DataBusType leftOp, DataBusType rightOp,
  *  Performs bit inversion of the left operands and stores them in the alu
  *  output.
  *
- *  @name NotA
+ *  @function notA
  *  @param <DataBusType> leftOp     The address of the Left operand Bit String
  *  @param <DataBusType> aluOutput  The address of the Alu output bit string
  */
-static void NotA(DataBusType leftOp, DataBusType aluOutput) {
+static void notA(DataBusType leftOp, DataBusType aluOutput) {
   //  VARIABLES
   int i;
 

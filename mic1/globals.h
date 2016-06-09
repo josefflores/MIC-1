@@ -33,7 +33,7 @@
 #define BIT_STRING_SP "0000111110000000"
 
 #define BIN_32768 0x00008000
-
+#define DEFAULT_FILE "promfile.dat"
 //  TYPEDEFINES
 typedef char AddressBusType[ADDR_WORD_SIZE];
 typedef char DataBusType[DATA_WORD_SIZE];
